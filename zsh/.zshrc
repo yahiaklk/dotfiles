@@ -28,7 +28,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 # kubectl
 source <(kubectl completion zsh)
 alias k=kubectl
-complete -o default -F __start_kubectl k
+compdef __start_kubectl k
 
 # helm
 source <(helm completion zsh)

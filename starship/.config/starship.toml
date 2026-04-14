@@ -2,7 +2,7 @@
 disabled = false
 
 [python]
-detect_virtualenvs = true
+detect_extensions = ["py"]
 
 [aws]
 disabled = false
