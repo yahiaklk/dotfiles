@@ -1,0 +1,14 @@
+[kubernetes]
+disabled = false
+
+[python]
+detect_virtualenvs = true
+
+[aws]
+disabled = false
+
+[terraform]
+disabled = false
+
+[docker_context]
+disabled = false
