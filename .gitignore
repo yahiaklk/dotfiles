@@ -1,0 +1,10 @@
+# Secrets — never commit
+**/.aws/credentials
+**/.ssh/
+**/.kube/config
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
