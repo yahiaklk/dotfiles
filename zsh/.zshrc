@@ -90,6 +90,10 @@ alias gco='git checkout'
 alias gsw='git switch'
 alias gb='git branch'
 
+# Claude Code (two accounts)
+alias cc1='claude'
+alias cc2='CLAUDE_CONFIG_DIR=~/.claude-work claude'
+
 # Navigation
 alias ..='cd ..'
 alias ...='cd ../..'
