@@ -8,6 +8,10 @@ setopt appendhistory sharehistory hist_ignore_dups hist_ignore_space
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
+# Plugins
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # Starship
 eval "$(starship init zsh)"
 
@@ -53,6 +57,44 @@ alias kcc='kubectl config current-context'
 alias kcu='kubectl config use-context'
 export do='--dry-run=client -o yaml'
 export now='--force --grace-period=0'
+
+# Docker
+alias d='docker'
+alias dps='docker ps'
+alias dpa='docker ps -a'
+alias di='docker images'
+alias dex='docker exec -it'
+alias dl='docker logs -f'
+alias dcp='docker compose'
+alias dcpu='docker compose up -d'
+alias dcpd='docker compose down'
+
+# Terraform
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfa='terraform apply'
+alias tfd='terraform destroy'
+alias tfo='terraform output'
+alias tfs='terraform state list'
+
+# Git
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit -m'
+alias gp='git push'
+alias gl='git log --oneline -20'
+alias gd='git diff'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gb='git branch'
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ll='ls -lah'
+alias mkd='mkdir -p'
 
 # helm
 source <(helm completion zsh)
