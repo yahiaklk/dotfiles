@@ -1,0 +1,17 @@
+# Global direnv config — applies to all projects
+
+# Python: create/activate .venv with uv
+layout_uv() {
+    if [[ ! -d ".venv" ]]; then
+        uv venv .venv
+    fi
+    VIRTUAL_ENV="$(pwd)/.venv"
+    export VIRTUAL_ENV
+    PATH_add "$VIRTUAL_ENV/bin"
+    export UV_NO_SYNC=1
+}
+
+# Node: use local node_modules/.bin
+layout_node() {
+    PATH_add node_modules/.bin
+}

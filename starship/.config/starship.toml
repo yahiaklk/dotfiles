@@ -1,5 +1,5 @@
 [kubernetes]
-disabled = false
+disabled = true
 
 [python]
 detect_extensions = ["py"]

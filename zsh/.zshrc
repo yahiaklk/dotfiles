@@ -108,3 +108,22 @@ eval "$(uv generate-shell-completion zsh)"
 
 # PATH
 export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$PATH"
+
+# Editor
+export EDITOR=nvim
+export VISUAL=nvim
+
+# 1Password SSH agent
+export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+
+# 1Password CLI completion
+eval "$(op completion zsh)"
+compdef _op op
+
+# AWS via 1Password — run any aws command with credentials from the vault
+# Setup: store AWS credentials in 1Password as env vars AWS_ACCESS_KEY_ID and
+# AWS_SECRET_ACCESS_KEY, then: op run --env-file=~/.aws/.op-env -- aws ...
+# Quick alias for the Achraf profile:
+aws-op() {
+  op run --env-file="$HOME/.aws/.op-env.personal" -- aws "$@"
+}
