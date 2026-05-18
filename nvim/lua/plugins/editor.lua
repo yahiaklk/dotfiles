@@ -57,18 +57,17 @@ return {
     opts = {},
   },
 
-  -- Better syntax highlighting via treesitter
+  -- Better syntax highlighting via treesitter (new API, nvim 0.12+)
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy  = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "python", "lua", "yaml", "json", "bash",
-          "hcl", "dockerfile", "markdown",
-        },
-        highlight = { enable = true },
-        indent    = { enable = true },
+      require("nvim-treesitter").setup()
+      -- Install parsers for languages we use
+      require("nvim-treesitter").install({
+        "python", "lua", "yaml", "json", "bash",
+        "hcl", "dockerfile", "markdown",
       })
     end,
   },

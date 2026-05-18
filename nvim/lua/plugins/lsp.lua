@@ -1,5 +1,5 @@
 return {
-  -- LSP package installer (handles pyright, terraform-ls, etc.)
+  -- LSP package installer
   {
     "williamboman/mason.nvim",
     opts = {
@@ -13,58 +13,52 @@ return {
     },
   },
 
-  -- Auto-install LSPs registered in ensure_installed
+  -- Auto-install + auto-enable LSPs via native vim.lsp.enable()
+  -- No nvim-lspconfig needed for nvim 0.11+
   {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
-    opts = {
-      ensure_installed = { "pyright", "terraformls", "yamlls", "bashls" },
-      automatic_installation = true,
-    },
-  },
-
-  -- LSP configurations
-  {
-    "neovim/nvim-lspconfig",
     dependencies = {
-      "williamboman/mason-lspconfig.nvim",
+      "williamboman/mason.nvim",
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local lspconfig    = require("lspconfig")
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
       local on_attach = function(_, bufnr)
         local map = function(keys, func, desc)
           vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
         end
-        -- Standard vim LSP keymaps — same across all languages
-        map("gd",         vim.lsp.buf.definition,   "Go to definition")
-        map("gD",         vim.lsp.buf.declaration,  "Go to declaration")
-        map("gr",         vim.lsp.buf.references,   "References")
-        map("gi",         vim.lsp.buf.implementation, "Implementation")
-        map("K",          vim.lsp.buf.hover,         "Hover docs")
-        map("<leader>rn", vim.lsp.buf.rename,        "Rename symbol")
-        map("<leader>ca", vim.lsp.buf.code_action,   "Code action")
+        map("gd",         vim.lsp.buf.definition,                              "Go to definition")
+        map("gD",         vim.lsp.buf.declaration,                             "Go to declaration")
+        map("gr",         vim.lsp.buf.references,                              "References")
+        map("gi",         vim.lsp.buf.implementation,                          "Implementation")
+        map("K",          vim.lsp.buf.hover,                                   "Hover docs")
+        map("<leader>rn", vim.lsp.buf.rename,                                  "Rename symbol")
+        map("<leader>ca", vim.lsp.buf.code_action,                             "Code action")
         map("<leader>fm", function() vim.lsp.buf.format({ async = true }) end, "Format file")
       end
 
-      lspconfig.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
-      lspconfig.terraformls.setup({ on_attach = on_attach, capabilities = capabilities })
-      lspconfig.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
-
-      lspconfig.yamlls.setup({
-        on_attach    = on_attach,
+      -- Apply capabilities + on_attach to every LSP
+      vim.lsp.config("*", {
         capabilities = capabilities,
+        on_attach    = on_attach,
+      })
+
+      -- YAML: Kubernetes schema for .yaml files
+      vim.lsp.config("yamlls", {
         settings = {
           yaml = {
-            -- Kubernetes schema applied to all .yaml files by default
             schemas = {
               ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.29.0/all.json"] = "/*.yaml",
             },
             validate = true,
           },
         },
+      })
+
+      require("mason-lspconfig").setup({
+        ensure_installed   = { "pyright", "terraformls", "yamlls", "bashls" },
+        automatic_enable   = true,
       })
     end,
   },
@@ -92,7 +86,6 @@ return {
           ["<C-f>"]     = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<C-e>"]     = cmp.mapping.abort(),
-          -- Enter confirms; Tab cycles completions
           ["<CR>"]      = cmp.mapping.confirm({ select = true }),
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
