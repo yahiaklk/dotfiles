@@ -1,3 +1,6 @@
+# PATH
+export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$PATH"
+
 # History
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
@@ -105,9 +108,6 @@ source <(helm completion zsh)
 
 # uv
 eval "$(uv generate-shell-completion zsh)"
-
-# PATH
-export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$PATH"
 
 # Editor
 export EDITOR=nvim
