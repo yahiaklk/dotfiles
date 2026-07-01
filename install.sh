@@ -4,6 +4,7 @@
 set -uo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+mkdir -p "$HOME/.local/bin"
 export PATH="$HOME/.local/bin:$PATH"
 
 log()  { printf '\n\033[1;34m==> %s\033[0m\n' "$1"; }
@@ -29,13 +30,12 @@ log "Installing apt packages"
 sudo apt-get update
 sudo apt-get install -y zsh neovim direnv fzf unzip curl git gnupg apt-transport-https
 
-log "Installing Helm (apt repo)"
+log "Installing Helm (user-local, no sudo)"
 if ! command -v helm >/dev/null; then
-  curl -fsSL https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg >/dev/null
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" \
-    | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list >/dev/null
-  sudo apt-get update
-  sudo apt-get install -y helm
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get_helm.sh
+  chmod +x /tmp/get_helm.sh
+  HELM_INSTALL_DIR="$HOME/.local/bin" /tmp/get_helm.sh --no-sudo || true
+  rm -f /tmp/get_helm.sh
 else
   echo "helm already installed"
 fi
@@ -56,7 +56,6 @@ else
 fi
 
 log "Installing starship, zoxide, uv (user-local, no sudo)"
-mkdir -p "$HOME/.local/bin"
 command -v starship >/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
 command -v zoxide    >/dev/null || curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir "$HOME/.local/bin"
 command -v uv        >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="$HOME/.local/bin" sh
