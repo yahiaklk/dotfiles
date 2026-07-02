@@ -33,5 +33,11 @@
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
+
+# Per-machine overrides (e.g. disabling gpgsign where the 1Password
+# desktop app isn't set up). Not tracked by this repo; install.sh
+# never touches it, so it survives reruns.
+[include]
+	path = ~/.gitconfig.local
