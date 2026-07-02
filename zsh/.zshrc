@@ -109,6 +109,12 @@ source <(helm completion zsh)
 # uv
 eval "$(uv generate-shell-completion zsh)"
 
+# Keybindings
+bindkey "^[[1;5C" forward-word   # Ctrl+Right
+bindkey "^[[1;5D" backward-word  # Ctrl+Left
+bindkey "^[[5C"   forward-word   # Ctrl+Right (older terminals)
+bindkey "^[[5D"   backward-word  # Ctrl+Left (older terminals)
+
 # Editor
 export EDITOR=nvim
 export VISUAL=nvim
