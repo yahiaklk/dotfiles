@@ -1,7 +1,7 @@
 [user]
 	name = yahiaklk
 	email = yahia.khallouk@gmail.com
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF5MP3HVLhEC5eLIQ45SKZTJ8VE2zVJsjobc9/aeyGiP
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH1fi2+Q6MGe7TSVH6cQW4ECwBRlzCT1HSn0TlBJVB5b
 
 [core]
 	editor = nvim
