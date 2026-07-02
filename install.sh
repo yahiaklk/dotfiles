@@ -84,6 +84,40 @@ chmod 600 "$HOME/.ssh/config"
 log "Syncing nvim plugins"
 command -v nvim >/dev/null && nvim --headless "+Lazy! sync" +qa
 
+log "Verifying Claude Code CLI"
+if [ -n "${CLAUDECODE:-}" ]; then
+  warn "running inside a Claude Code session — skipping claude-code verification"
+  warn "(reinstalling the package a running session executes from can crash it mid-script)"
+elif command -v npm >/dev/null; then
+  claude_bin="$(npm root -g 2>/dev/null)/@anthropic-ai/claude-code/bin/claude.exe"
+  if [ -f "$claude_bin" ]; then
+    # The postinstall placeholder stub is a ~500 byte shell script; the real
+    # native binary is tens of MB. A stub left in place means the optional
+    # platform package silently failed to download (npm doesn't fail the
+    # install for a failed optional dep).
+    size=$(stat -c%s "$claude_bin" 2>/dev/null || echo 0)
+    if [ "$size" -lt 100000 ]; then
+      warn "claude-code native binary missing (found a ${size}-byte stub) — reinstalling"
+      npm uninstall -g @anthropic-ai/claude-code >/dev/null 2>&1
+      npm cache clean --force >/dev/null 2>&1
+      npm install -g @anthropic-ai/claude-code@latest
+      size=$(stat -c%s "$claude_bin" 2>/dev/null || echo 0)
+      if [ "$size" -lt 100000 ]; then
+        warn "still just a stub after reinstall — likely a network/TLS issue fetching the"
+        warn "optional platform package. Try: npm install -g @anthropic-ai/claude-code-linux-x64@\$(npm view @anthropic-ai/claude-code version)"
+      else
+        echo "claude-code native binary installed (${size} bytes)"
+      fi
+    else
+      echo "claude-code native binary OK (${size} bytes)"
+    fi
+  else
+    echo "claude-code not installed via npm — skipping (install separately if needed)"
+  fi
+else
+  echo "npm not found — skipping claude-code check"
+fi
+
 log "Setting zsh as default shell"
 if [ "$SHELL" != "$(command -v zsh)" ]; then
   chsh -s "$(command -v zsh)" && echo "default shell set to zsh (restart your terminal)" \
