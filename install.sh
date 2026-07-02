@@ -28,7 +28,7 @@ link() {
 
 log "Installing apt packages"
 sudo apt-get update
-sudo apt-get install -y zsh neovim direnv fzf unzip curl git gnupg apt-transport-https
+sudo apt-get install -y zsh neovim direnv fzf tmux unzip curl git gnupg apt-transport-https
 
 log "Installing Helm (user-local, no sudo)"
 if ! command -v helm >/dev/null; then
@@ -77,6 +77,7 @@ link "$DOTFILES_DIR/direnv/direnvrc"                                   "$HOME/.c
 link "$DOTFILES_DIR/libinput-gestures/.config/libinput-gestures.conf"  "$HOME/.config/libinput-gestures.conf"
 link "$DOTFILES_DIR/aws/config"                                        "$HOME/.aws/config"
 link "$DOTFILES_DIR/ssh/config"                                        "$HOME/.ssh/config"
+link "$DOTFILES_DIR/tmux/.tmux.conf"                                   "$HOME/.tmux.conf"
 chmod 700 "$HOME/.ssh"
 chmod 600 "$HOME/.ssh/config"
 
