@@ -11,31 +11,37 @@ setopt appendhistory sharehistory hist_ignore_dups hist_ignore_space
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
+# Every tool below is optional: install.sh lets each machine pick its own set,
+# so each one is loaded only when it is present.
+_have() { (( $+commands[$1] )) }
+
 # Plugins
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+for _p in ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh \
+          ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  [[ -f $_p ]] && source $_p
+done
+unset _p
 
-# Starship
-eval "$(starship init zsh)"
-
-# direnv
-eval "$(direnv hook zsh)"
-
-# zoxide
-eval "$(zoxide init zsh)"
+_have starship && eval "$(starship init zsh)"
+_have direnv   && eval "$(direnv hook zsh)"
+_have zoxide   && eval "$(zoxide init zsh)"
 
 # fzf
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-source /usr/share/doc/fzf/examples/completion.zsh
+[[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+[[ -f /usr/share/doc/fzf/examples/completion.zsh ]]   && source /usr/share/doc/fzf/examples/completion.zsh
 
 # CUDA
-export PATH=/usr/local/cuda/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+if [[ -d /usr/local/cuda/bin ]]; then
+  export PATH=/usr/local/cuda/bin:$PATH
+  export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+fi
 
 # kubectl — aliases match CKA exam environment
-source <(kubectl completion zsh)
 alias k=kubectl
-compdef __start_kubectl k
+if _have kubectl; then
+  source <(kubectl completion zsh)
+  compdef _kubectl k
+fi
 
 # CKA-safe shortcuts (memorize these, they're allowed in the exam)
 alias kgp='kubectl get pods'
@@ -103,11 +109,8 @@ alias ...='cd ../..'
 alias ll='ls -lah'
 alias mkd='mkdir -p'
 
-# helm
-source <(helm completion zsh)
-
-# uv
-eval "$(uv generate-shell-completion zsh)"
+_have helm && source <(helm completion zsh)
+_have uv   && eval "$(uv generate-shell-completion zsh)"
 
 # Keybindings
 bindkey "^[[1;5C" forward-word   # Ctrl+Right
@@ -119,21 +122,21 @@ bindkey "^[[5D"   backward-word  # Ctrl+Left (older terminals)
 export EDITOR=nvim
 export VISUAL=nvim
 
-# 1Password SSH agent
-export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
-
-# 1Password CLI completion
-eval "$(op completion zsh)"
-compdef _op op
-
-# AWS via 1Password — run any aws command with credentials from the vault
-# Setup: store AWS credentials in 1Password as env vars AWS_ACCESS_KEY_ID and
-# AWS_SECRET_ACCESS_KEY, then: op run --env-file=~/.aws/.op-env -- aws ...
-# Quick alias for the Achraf profile:
-aws-op() {
-  op run --env-file="$HOME/.aws/.op-env.personal" -- aws "$@"
-}
+# 1Password CLI completion (only where the optional 1password component is installed)
+if _have op; then
+  eval "$(op completion zsh)"
+  compdef _op op
+fi
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Weekly update check (install.sh update-check component)
+if [[ -s ~/.cache/dotfiles/updates ]]; then
+  print -P "%F{yellow}dotfiles:%f $(grep -vc '^#' ~/.cache/dotfiles/updates) tool update(s), $(grep -c MAJOR ~/.cache/dotfiles/updates) major: run ~/dotfiles/install.sh --check-updates"
+fi
+
+# Per-machine settings (e.g. an SSH agent socket). Not tracked by this repo.
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+unfunction _have

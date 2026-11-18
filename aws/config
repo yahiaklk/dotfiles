@@ -1,7 +1,0 @@
-# AWS config — profiles only, no credentials here
-# Credentials are managed by 1Password (op run)
-# Usage: op run --env-file=~/.aws/.env.Achraf -- aws s3 ls
-
-[profile personal]
-region = eu-central-1
-output = json

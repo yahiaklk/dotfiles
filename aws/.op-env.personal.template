@@ -1,5 +1,0 @@
-# 1Password env-file for the personal AWS profile
-# Secret references resolved at runtime by `op run`
-# AWS_ACCESS_KEY_ID=op://Personal/personal AWS/access_key_id
-# AWS_SECRET_ACCESS_KEY=op://Personal/personal AWS/secret_access_key
-# AWS_DEFAULT_REGION=eu-central-1

@@ -1,6 +1,10 @@
+# Per-machine settings (e.g. an agent socket) go in ~/.ssh/config.local, which
+# this repo doesn't track. ssh skips a missing Include file. The Include must
+# come before any Host block, and ssh keeps the first value it reads for each
+# option, so per-machine settings win.
+Include ~/.ssh/config.local
+
 Host *
-    # 1Password SSH agent — keys are unlocked on demand, never stored on disk
-    IdentityAgent "~/.1password/agent.sock"
     ServerAliveInterval 60
     ServerAliveCountMax 3
     AddKeysToAgent yes
