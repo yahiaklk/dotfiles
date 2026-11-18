@@ -70,6 +70,8 @@ link "$DOTFILES_DIR/zsh/.zshrc"                                        "$HOME/.z
 link "$DOTFILES_DIR/vim/.vimrc"                                        "$HOME/.vimrc"
 link "$DOTFILES_DIR/git/.gitconfig"                                    "$HOME/.gitconfig"
 link "$DOTFILES_DIR/git/.gitignore_global"                             "$HOME/.gitignore_global"
+link "$DOTFILES_DIR/git/hooks"                                         "$HOME/.config/git/hooks"
+link "$DOTFILES_DIR/git/projects.gitconfig"                            "$HOME/.config/git/projects.gitconfig"
 link "$DOTFILES_DIR/terraform/.terraformrc"                            "$HOME/.terraformrc"
 link "$DOTFILES_DIR/nvim"                                              "$HOME/.config/nvim"
 link "$DOTFILES_DIR/starship/.config/starship.toml"                    "$HOME/.config/starship.toml"

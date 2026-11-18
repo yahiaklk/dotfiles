@@ -1,0 +1,6 @@
+# Included by .gitconfig for repositories under ~/projects/ only, so automated
+# committers elsewhere (the Obsidian vault's auto-sync cron) are not affected.
+# The hooks enforce Conventional Commits and <type>/<kebab> branch names; see
+# hooks/lib.sh.
+[core]
+	hooksPath = ~/.config/git/hooks

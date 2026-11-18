@@ -1,0 +1,41 @@
+#!/bin/sh
+# Before anything leaves the machine: each pushed branch's name, and every new
+# commit's message (this also catches commits made with --no-verify).
+# Then the repository's own pre-push hook, with the same stdin.
+. "$(dirname "$0")/lib.sh"
+remote=$1
+zero=0000000000000000000000000000000000000000
+input=$(cat)
+if ! conventions_on; then
+  printf '%s\n' "$input" | chain pre-push "$@"
+  exit $?
+fi
+status=0
+tmp=$(mktemp "$(git rev-parse --git-dir)/hook-msg.XXXXXX") || exit 1
+trap 'rm -f "$tmp"' EXIT
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "$local_ref" ] && continue
+  [ "$local_sha" = "$zero" ] && continue          # deleting a remote ref
+  case $remote_ref in
+    refs/heads/*) check_branch "${remote_ref#refs/heads/}" push || status=1 ;;
+    *) continue ;;                                 # tags: no branch or message rule
+  esac
+  if [ "$remote_sha" = "$zero" ]; then
+    commits=$(git rev-list "$local_sha" --not --remotes="$remote")
+  else
+    commits=$(git rev-list "$remote_sha..$local_sha")
+  fi
+  for c in $commits; do
+    git log -1 --format=%B "$c" > "$tmp"
+    if ! check_message_file "$tmp"; then
+      printf '  in commit %s\n' "$(git log -1 --format='%h %s' "$c")" >&2
+      status=1
+    fi
+  done
+done <<EOF
+$input
+EOF
+
+[ "$status" -ne 0 ] && exit 1
+printf '%s\n' "$input" | chain pre-push "$@"

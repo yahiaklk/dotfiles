@@ -36,8 +36,14 @@
 	helper =
 	helper = !/usr/bin/gh auth git-credential
 
-# Per-machine overrides (e.g. disabling gpgsign where the 1Password
-# desktop app isn't set up). Not tracked by this repo; install.sh
+# Conventional Commits and <type>/<kebab> branch names, enforced by the hooks in
+# git/hooks/ (linked to ~/.config/git/hooks), for repositories under ~/projects/
+# only. Elsewhere (e.g. the Obsidian vault's auto-sync cron) nothing changes.
+[includeIf "gitdir:~/projects/"]
+	path = ~/.config/git/projects.gitconfig
+
+# Per-machine overrides (e.g. turning signing back on for one machine).
+# Not tracked by this repo; install.sh
 # never touches it, so it survives reruns.
 [include]
 	path = ~/.gitconfig.local
