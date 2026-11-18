@@ -1,25 +1,20 @@
 [user]
 	name = yahiaklk
 	email = yahia.khallouk@gmail.com
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH1fi2+Q6MGe7TSVH6cQW4ECwBRlzCT1HSn0TlBJVB5b
 
 [core]
 	editor = nvim
 	excludesfile = ~/.gitignore_global
 
+# Commit signing is off (2026-11-18): signing through the 1Password agent needs
+# the owner at the machine, and unattended commits were failing. Older commits
+# are SSH-signed; the settings below still let `git log --show-signature`
+# verify them.
 [gpg]
 	format = ssh
 
 [gpg "ssh"]
-	program = /opt/1Password/op-ssh-sign
 	allowedSignersFile = ~/.config/git/allowed_signers
-
-[commit]
-	gpgsign = true
-
-[tag]
-	gpgsign = true
-
 
 [init]
 	defaultBranch = main
