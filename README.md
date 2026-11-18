@@ -63,6 +63,8 @@ as root; it calls `sudo` itself for apt.
 | `terraform` | `.terraformrc` and its plugin cache (not terraform itself) |
 | `gestures` | libinput-gestures config (touchpad laptops; the tool itself isn't installed) |
 | `claude` | checks that the npm-installed Claude Code has its native binary |
+| `agent-claude-code` | Claude Code `SessionStart` hook (`~/.local/bin/claude-session-start`) that adds the repo's project toolkit from `anzar-brief`; added once to each existing `settings.json`, with a backup |
+| `agent-opencode` | `oc`: starts OpenCode after writing the repo's project toolkit to `~/.cache/anzar/brief.md`, which is added to `instructions` in `opencode.json` |
 | `update-check` | weekly systemd user timer running `--check-updates` |
 
 `.zshrc` loads every optional tool only when it's present, so any subset of components gives a shell without errors.

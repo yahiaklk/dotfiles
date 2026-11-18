@@ -1,0 +1,17 @@
+#!/bin/sh
+# Start OpenCode with the repo's project toolkit (anzar-brief) in its instructions.
+# OpenCode loads the files listed in "instructions" in ~/.config/opencode/opencode.json (documented at
+# opencode.ai/docs/rules); the agent-opencode component adds ~/.cache/anzar/brief.md there. This wrapper rewrites
+# that file for the current directory, then runs opencode with the same arguments.
+# Two sessions started at once share the file: the later one wins. Never blocks start-up: any failure leaves an
+# empty brief. ANZAR_DIR overrides where anzar is checked out (default ~/projects/anzar).
+ANZAR_DIR=${ANZAR_DIR:-$HOME/projects/anzar}
+brief=$HOME/.cache/anzar/brief.md
+mkdir -p "$(dirname "$brief")"
+: > "$brief"
+if [ -d "$ANZAR_DIR" ] && command -v uv >/dev/null 2>&1; then
+  timeout 20 uv run --no-sync --quiet --directory "$ANZAR_DIR" anzar-brief --cwd "$PWD" </dev/null >"$brief" 2>/dev/null \
+    || : > "$brief"
+fi
+bin=$(command -v opencode || echo "$HOME/.opencode/bin/opencode")
+exec "$bin" "$@"

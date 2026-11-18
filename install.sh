@@ -19,7 +19,8 @@ TMP=""
 # Components (listed in install order), dependencies and presets
 # ---------------------------------------------------------------------------
 COMPONENTS=(core git git-hooks zsh vim tmux node nvim uv direnv ssh 1password
-            kubectl k9s helm terraform gestures claude update-check)
+            kubectl k9s helm terraform gestures claude agent-claude-code agent-opencode
+            update-check)
 
 declare -A DESC=(
   [core]="base apt packages, ~/.local/bin (always included)"
@@ -40,6 +41,8 @@ declare -A DESC=(
   [terraform]=".terraformrc and its plugin cache"
   [gestures]="libinput-gestures config (touchpad laptops)"
   [claude]="check the Claude Code native binary"
+  [agent-claude-code]="Claude Code session-start hook: the repo's project toolkit (anzar-brief)"
+  [agent-opencode]="oc: OpenCode with the repo's project toolkit in its instructions (anzar-brief)"
   [update-check]="weekly check for new versions of these tools"
 )
 
@@ -383,6 +386,33 @@ c_claude() {
     return 1
   fi
   echo "ok     claude-code native binary (${size} bytes)"
+}
+
+# Session-start adapters: one per agent harness. Both run anzar-brief (~/projects/anzar) for the repo the session
+# starts in; neither syncs anzar's venv or reads the vault. Choose the one each machine's harness needs.
+c_agent_claude_code() {
+  local hook="$HOME/.local/bin/claude-session-start" d files=()
+  link "$DOTFILES_DIR/agents/claude-code/session-start.sh" "$hook"
+  for d in "${CLAUDE_CONFIG_DIR:-$HOME/.claude}" "$HOME/.claude" "$HOME/.claude-work"; do
+    [ -f "$d/settings.json" ] || continue
+    case " ${files[*]} " in *" $d/settings.json "*) continue ;; esac
+    files+=("$d/settings.json")
+  done
+  if [ ${#files[@]} -eq 0 ]; then
+    warn "no Claude Code settings.json found: start Claude Code once, then re-run this component"
+    return 0
+  fi
+  local dry=(); [ "$DRY_RUN" = 1 ] && dry=(--dry-run)
+  python3 -I "$DOTFILES_DIR/agents/claude-code/add_hook.py" "${dry[@]}" "$hook" "${files[@]}"
+  [ -d "$HOME/projects/anzar" ] || warn "anzar not found at ~/projects/anzar: the hook stays silent until it is"
+}
+
+c_agent_opencode() {
+  link "$DOTFILES_DIR/agents/opencode/oc" "$HOME/.local/bin/oc"
+  local dry=(); [ "$DRY_RUN" = 1 ] && dry=(--dry-run)
+  python3 -I "$DOTFILES_DIR/agents/opencode/add_instructions.py" "${dry[@]}" \
+    "~/.cache/anzar/brief.md" "$HOME/.config/opencode/opencode.json"
+  [ -d "$HOME/projects/anzar" ] || warn "anzar not found at ~/projects/anzar: oc starts with an empty brief until it is"
 }
 
 c_update_check() {
