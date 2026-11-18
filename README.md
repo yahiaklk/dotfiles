@@ -23,8 +23,10 @@ Not every machine needs everything, so `install.sh` installs **components** you 
 ./install.sh --check-updates     # what has a newer release
 ```
 
-With no arguments it opens a checklist, pre-ticked with the last selection
-(`~/.config/dotfiles/selection`). `core` is always included and dependencies are
+With no arguments it opens a checklist, pre-ticked with what this machine has
+(`~/.config/dotfiles/selection`). Named runs add to that list (`./install.sh k8s`
+later keeps everything installed before); the checklist replaces it, so untick an
+item there to drop it. `core` is always included and dependencies are
 added automatically (`nvim` needs `node`, `git-hooks` needs `git`). Each component
 is idempotent: reruns skip what's already in place, and anything a link would
 replace is moved to `~/.dotfiles-backup/<timestamp>/`. The script refuses to run

@@ -12,6 +12,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 DRY_RUN=0
 UPGRADE=0
+REPLACE_SELECTION=0   # 1 when the checklist chose the components
 TMP=""
 
 # ---------------------------------------------------------------------------
@@ -527,8 +528,10 @@ usage() {
   cat <<EOF
 Usage: ./install.sh [options] [component|preset ...]
 
-With no names, opens a checklist (whiptail, or a numbered prompt). core is
-always included, and dependencies are added automatically.
+With no names, opens a checklist (whiptail, or a numbered prompt) pre-ticked
+with this machine's saved selection. core is always included, and
+dependencies are added automatically. Named components are added to the saved
+selection; the checklist replaces it.
 
 Options:
   -a, --all          install every component (preset "full")
@@ -545,6 +548,20 @@ Examples:
 EOF
 }
 
+# Remember what this machine has. Named runs add to the saved selection; the
+# checklist replaces it, since it starts from the saved list (unticking an item
+# there is how it leaves the list).
+save_selection() {
+  local c keep=() prev=" "
+  [ "$REPLACE_SELECTION" = 1 ] || prev=" $(cat "$SELECTION_FILE" 2>/dev/null) "
+  for c in "${COMPONENTS[@]}"; do
+    [ "$c" = core ] && continue
+    if [ -n "${SELECTED[$c]+set}" ] || [[ "$prev" == *" $c "* ]]; then keep+=("$c"); fi
+  done
+  mkdir -p "$(dirname "$SELECTION_FILE")"
+  printf '%s\n' "${keep[*]}" >"$SELECTION_FILE"
+}
+
 choose_interactive() {
   local saved c i args=() picked reply choices=()
   saved=" $(cat "$SELECTION_FILE" 2>/dev/null || echo "${PRESETS[minimal]}") "
@@ -553,6 +570,7 @@ choose_interactive() {
   if [ ! -t 0 ]; then
     die "no components given and no terminal: name components, a preset or --all (see --list)"
   fi
+  REPLACE_SELECTION=1
   if have whiptail; then
     for c in "${choices[@]}"; do
       if [[ "$saved" == *" $c "* ]]; then args+=("$c" "${DESC[$c]}" ON); else args+=("$c" "${DESC[$c]}" OFF); fi
@@ -583,7 +601,7 @@ choose_interactive() {
 # Main
 # ---------------------------------------------------------------------------
 main() {
-  local mode=install names=() c d fn rc ok=() failed=() plan=() keep=()
+  local mode=install names=() c d fn rc ok=() failed=() plan=()
   while [ $# -gt 0 ]; do
     case "$1" in
       -a|--all)        names+=(full) ;;
@@ -628,11 +646,7 @@ main() {
     if [ "$rc" -eq 0 ]; then ok+=("$c"); else failed+=("$c"); warn "$c failed"; fi
   done
 
-  if [ "$DRY_RUN" = 0 ]; then
-    mkdir -p "$(dirname "$SELECTION_FILE")"
-    for c in "${plan[@]}"; do [ "$c" != core ] && keep+=("$c"); done
-    printf '%s\n' "${keep[*]}" >"$SELECTION_FILE"
-  fi
+  [ "$DRY_RUN" = 1 ] || save_selection
 
   log "Summary"
   echo "ok:     ${ok[*]:-none}"
